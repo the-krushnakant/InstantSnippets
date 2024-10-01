@@ -1,17 +1,27 @@
 import * as vscode from 'vscode';
 
+import Groq from "groq-sdk";
+
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+
 let boardPanel: vscode.WebviewPanel | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Extension "Copy to Board" is now active!');
 
-    let disposable = vscode.commands.registerCommand('extension.copyToBoard', () => {
+    let disposable = vscode.commands.registerCommand('extension.copyToBoard', async () => {
         const editor = vscode.window.activeTextEditor;
         if (editor) {
             const selection = editor.selection;
-            const text = editor.document.getText(selection);
+            const selectedText = editor.document.getText(selection);
 
-            if (text) {
+            if (selectedText) {
+                vscode.window.showInformationMessage('Sending snippet for completion...');
+
+                // Send the snippet to the GROQ API
+                const completedSnippet = await sendToGROQAPI(selectedText);
+
                 if (!boardPanel) {
                     boardPanel = vscode.window.createWebviewPanel(
                         'boardPanel',
@@ -25,7 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
                     }, null, context.subscriptions);
                 }
 
-                boardPanel.webview.html = getWebviewContent(text);
+                boardPanel.webview.html = getWebviewContent(completedSnippet);
                 boardPanel.reveal(vscode.ViewColumn.Beside);
             } else {
                 vscode.window.showInformationMessage('No text selected');
@@ -50,6 +60,46 @@ class CopyToBoardActionProvider implements vscode.CodeActionProvider {
             title: 'Copy to Board',
         };
         return [copyToBoardAction];
+    }
+}
+
+// Use GROQ API instead of OpenAI API
+async function sendToGROQAPI(snippet: string): Promise<string> {
+    try {
+
+		const completion = await groq.chat.completions
+		.create({
+		  messages: [
+			{
+			  role: "user",
+			  content: "Explain the importance of fast language models",
+			},
+		  ],
+		  model: "llama",
+		})
+		.then((chatCompletion) => {
+		  console.log(chatCompletion.choices[0]?.message?.content || "");
+		});
+	
+
+        const response = await fetch('https://groq.api.endpoint/v1/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer YOUR_GROQ_API_KEY`,  // Use GROQ API Key
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                query: snippet,  // Adapt this to match GROQ API query syntax
+                other_params: "value"  // Any other necessary parameters for GROQ
+            })
+        });
+
+        const data = await response.json();
+        return data.result || '';  // Adjust according to GROQ API response format
+    } catch (error) {
+        vscode.window.showErrorMessage('Failed to complete snippet using GROQ API');
+        console.error(error);
+        return '';
     }
 }
 
