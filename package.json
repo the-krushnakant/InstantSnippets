@@ -28,17 +28,17 @@
     "menus": {
       "editor/context": [
         {
-          "when": "editorHasSelection && editorLangId == python",
+          "when": "editorLangId == python",
           "command": "instantSnippets.openInEditor",
           "group": "instantSnippets@1"
         },
         {
-          "when": "editorHasSelection && editorLangId == python",
+          "when": "editorLangId == python",
           "command": "instantSnippets.openAndRun",
           "group": "instantSnippets@2"
         },
         {
-          "when": "editorHasSelection && editorLangId == python",
+          "when": "editorLangId == python",
           "command": "instantSnippets.openImportAndRun",
           "group": "instantSnippets@3"
         }
