@@ -3,6 +3,7 @@ import { exec } from 'child_process';
 import { join } from 'path';
 import * as os from 'os';
 import { writeFileSync } from 'fs';
+import {LLM} from './llm'
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -214,35 +215,9 @@ async function autoComplete(snippetText: string): Promise<string> {
     console.log("Starting autoComplete function");
     return new Promise(async (resolve, reject) => {
         try {
-            // Get the selected language model from user settings
-            const config = vscode.workspace.getConfiguration('myExtension');
-            const selectedModelFamily = config.get<string>('selectedLanguageModel', 'gpt-3.5-turbo');
-
-            // Select the chat model
-            const [model] = await vscode.lm.selectChatModels({
-                vendor: 'copilot',
-                family: selectedModelFamily
-            });
-
-            if (!model) {
-                throw new Error("No language model available");
-            }
-
-            // Create a prompt for the language model
-            const messages = [
-                vscode.LanguageModelChatMessage.User("You are a helpful code completion assistant."),
-                vscode.LanguageModelChatMessage.User(`Please autocomplete the following code snippet:\n\n${snippetText}\n\n`),
-                vscode.LanguageModelChatMessage.User("Output must start with ```python  and must end with ``` \n"),
-                vscode.LanguageModelChatMessage.User("Output must be a minimal autocomplete version of the code snippet so that the user can directly run it")
-            ];
-
-            // Send the request to the language model
-            const response = await model.sendRequest(messages, {}, new vscode.CancellationTokenSource().token);
-
-            let completedText: string = '';
-            for await (const fragment of response.text) {
-                completedText += fragment;
-            }
+            let my_llm = new LLM();
+            my_llm.initialize("groq", "API_KEY");
+            let completedText = await my_llm.call(snippetText)
             console.log(`Completed Text: ${completedText}`)
             completedText = completedText.replace("```python", "").replace("```", "")
             console.log(`Replaced Text: ${completedText}`)
