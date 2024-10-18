@@ -1,29 +1,46 @@
 {
-  "name": "pysnippet",
-  "displayName": "PySnippet",
-  "description": "",
+  "name": "instant-snippets",
+  "displayName": "Instant Snippets",
+  "description": "Quickly open and run Python snippets from selected text",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.93.0"
+    "vscode": "^1.60.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "extension.copyToBoard",
-        "title": "Copy to Board"
+        "command": "instantSnippets.openInEditor",
+        "title": "Open snippet in editor"
+      },
+      {
+        "command": "instantSnippets.openAndRun",
+        "title": "Open in editor and run snippet"
+      },
+      {
+        "command": "instantSnippets.openImportAndRun",
+        "title": "Open in editor, add 'import os' and run snippet"
       }
     ],
     "menus": {
       "editor/context": [
         {
-          "when": "editorHasSelection",
-          "command": "extension.copyToBoard",
-          "group": "navigation"
+          "when": "editorHasSelection && editorLangId == python",
+          "command": "instantSnippets.openInEditor",
+          "group": "instantSnippets@1"
+        },
+        {
+          "when": "editorHasSelection && editorLangId == python",
+          "command": "instantSnippets.openAndRun",
+          "group": "instantSnippets@2"
+        },
+        {
+          "when": "editorHasSelection && editorLangId == python",
+          "command": "instantSnippets.openImportAndRun",
+          "group": "instantSnippets@3"
         }
       ]
     }
@@ -31,20 +48,15 @@
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src",
-    "test": "vscode-test"
+    "lint": "eslint src --ext ts",
+    "watch": "tsc -watch -p ./"
   },
   "devDependencies": {
-    "@types/vscode": "^1.93.0",
-    "@types/mocha": "^10.0.8",
-    "@types/node": "20.x",
-    "@typescript-eslint/eslint-plugin": "^8.7.0",
-    "@typescript-eslint/parser": "^8.7.0",
-    "eslint": "^9.11.1",
-    "typescript": "^5.6.2",
-    "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1"
+    "@types/vscode": "^1.60.0",
+    "@types/node": "^14.14.37",
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@typescript-eslint/parser": "^4.22.0",
+    "eslint": "^7.24.0",
+    "typescript": "^4.2.4"
   }
 }
