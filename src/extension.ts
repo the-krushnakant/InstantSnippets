@@ -25,7 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
 
             let snippetText = text;
 
-            panel.webview.html = getWebviewContent(snippetText, option > 1);
+            panel.webview.html = getWebviewContent(snippetText);
 
             panel.webview.onDidReceiveMessage(
                 async (message) => {
@@ -52,8 +52,24 @@ export function activate(context: vscode.ExtensionContext) {
                 context.subscriptions
             );
 
-            if (option === 3) {
-                // do what?
+            // Handle the options here
+            if (option === 2) {
+                // Option 2: Immediately run the snippet
+                panel.webview.postMessage({ command: 'runSnippet', snippet: snippetText });
+            } else if (option === 3) {
+                // Option 3: Autocomplete, then run
+                autoComplete(snippetText).then((completedSnippet) => {
+                    panel.webview.postMessage({ command: 'autoComplete', output: completedSnippet });
+                    // Wait for the autocomplete to finish before running
+                    panel.webview.onDidReceiveMessage(
+                        (message) => {
+                            if (message.command === 'autoComplete') {
+                                // Now run the completed snippet
+                                panel.webview.postMessage({ command: 'runSnippet', snippet: completedSnippet });
+                            }
+                        }
+                    );
+                });
             }
         }
     });
@@ -74,7 +90,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 }
 
-function getWebviewContent(snippetText: string, autoRun: boolean): string {
+function getWebviewContent(snippetText: string): string {
     return `
         <!DOCTYPE html>
         <html lang="en">
@@ -133,7 +149,7 @@ function getWebviewContent(snippetText: string, autoRun: boolean): string {
             <textarea id="editor" spellcheck="false">${snippetText}</textarea>
             <br>
             <button id="runButton">Run</button>
-            <button id="autoCompleteButton">Autcomplete</button>
+            <button id="autoCompleteButton">AutiComplete</button>
             <div id="output">Output:</div>
             <script>
                 const vscode = acquireVsCodeApi();
@@ -153,14 +169,14 @@ function getWebviewContent(snippetText: string, autoRun: boolean): string {
                     const message = event.data;
                     switch (message.command) {
                         case 'autoComplete':
-                            editor.textContent = message.content
+                            editor.value = message.output
+                            break;
                         case 'showOutput':
                             output.textContent = 'Output: ' + message.output;
                             break;
                     }
                 });
 
-                ${autoRun ? 'runButton.click();' : ''}
             </script>
         </body>
         </html>

@@ -30,11 +30,15 @@ export class LLM {
         const messages = [
             {
                 role: "system",
-                content: "Complete the following python snippet. Only return python code, format it nicely so that your response starts with ```python and ends with ```"
+                content: [
+                    "Autocomplete the following code snippet. Only return python code.",
+                    "Do not add any code of your own unless its necessary to run",
+                    "Format your output nicely in markdown so that your response starts with ```python and ends with ```",
+                ].join(' \n')
             },
             {
                 role: "user",
-                content: "hi!" + snippet
+                content: snippet
             }
         ];
 
