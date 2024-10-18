@@ -1,13 +1,21 @@
 export class LLM {
     private apiKey: string | undefined;
+    private apiUrl: string | undefined;
 
     constructor() { }
 
     public initialize(llmChoice: string, apiKey: string): string {
         try {
+            this.apiKey = apiKey;
             switch (llmChoice) {
                 case 'groq':
-                    this.apiKey = apiKey;
+                    this.apiUrl = "https://api.groq.com/openai/v1/chat/completions";
+                    break;
+                case 'openai':
+                    this.apiUrl = 'https://api.openai.com/v1/chat/completions' ;
+                    break;
+                case 'anthropic':
+                    this.apiUrl = 'https://api.anthropic.com/v1/messages';
                     break;
                 default:
                     throw new Error("Invalid LLM choice provided.");
@@ -23,7 +31,7 @@ export class LLM {
     }
 
     public async call(snippet: string): Promise<string> {
-        if (!this.apiKey) {
+        if (!this.apiKey || !this.apiUrl) {
             throw new Error("LLM has not been initialized. Please call initialize() first.");
         }
 
@@ -42,7 +50,7 @@ export class LLM {
             }
         ];
 
-        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        const response = await fetch(this.apiUrl, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${this.apiKey}`,

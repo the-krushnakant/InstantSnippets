@@ -2,8 +2,23 @@ import * as vscode from 'vscode';
 import { exec } from 'child_process';
 import { join } from 'path';
 import * as os from 'os';
-import { writeFileSync } from 'fs';
+import { unlink, writeFileSync } from 'fs';
 import {LLM} from './llm'
+
+
+function areSettingsConfigured(): boolean {
+    const { llmProvider, apiKey } = getSettings();
+    return llmProvider !== '' && apiKey !== '';
+}  
+
+function getSettings(): { llmProvider: string; apiKey: string } {
+    const config = vscode.workspace.getConfiguration('yourExtension');
+    return {
+      llmProvider: config.get('llmProvider') as string,
+      apiKey: config.get('apiKey') as string
+    };
+}
+
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -30,6 +45,12 @@ export function activate(context: vscode.ExtensionContext) {
             panel.webview.onDidReceiveMessage(
                 async (message) => {
                     switch (message.command) {
+                        case 'updateSettings':
+                            const config = vscode.workspace.getConfiguration('yourExtension');
+                            config.update('llmProvider', message.llmProvider, vscode.ConfigurationTarget.Global);
+                            config.update('apiKey', message.apiKey, vscode.ConfigurationTarget.Global);
+                            vscode.window.showInformationMessage('Settings updated successfully');
+                            return;
                         case 'runSnippet':
                             try {
                                 const result = await runPythonSnippet(message.snippet);
@@ -148,6 +169,15 @@ function getWebviewContent(snippetText: string): string {
         <body>
             <textarea id="editor" spellcheck="false">${snippetText}</textarea>
             <br>
+            <select id="llmProvider">
+                <option value="">Select LLM Provider</option>
+                <option value="llama">Llama (Groq)</option>
+                <option value="anthropic">Anthropic</option>
+                <option value="openai">OpenAI</option>
+            </select>
+            <input type="password" id="apiKey" placeholder="Enter API Key">
+            <button id="saveSettings">Save Settings</button>
+            <br>
             <button id="runButton">Run</button>
             <button id="autoCompleteButton">AutiComplete</button>
             <div id="output">Output:</div>
@@ -155,6 +185,7 @@ function getWebviewContent(snippetText: string): string {
                 const vscode = acquireVsCodeApi();
                 const editor = document.getElementById('editor');
                 const runButton = document.getElementById('runButton');
+                const saveButton = document.getElementById('saveSettings');
                 const output = document.getElementById('output');
 
                 runButton.addEventListener('click', () => {
@@ -163,6 +194,16 @@ function getWebviewContent(snippetText: string): string {
 
                 autoCompleteButton.addEventListener('click', () => {
                     vscode.postMessage({ command: 'autoComplete', snippet: editor.value });
+                });
+
+                saveButton.addEventListener('click', () => {
+                    const llmProvider = document.getElementById('llmProvider').value;
+                    const apiKey = document.getElementById('apiKey').value;
+                    vscode.postMessage({ 
+                        command: 'updateSettings', 
+                        llmProvider, 
+                        apiKey 
+                    });
                 });
 
                 window.addEventListener('message', event => {
@@ -202,6 +243,14 @@ async function runPythonSnippet(snippetText: string): Promise<string> {
 
         console.log("Executing Python script...");
         exec(`python "${tempScript}"`, (error, stdout, stderr) => {
+            unlink(tempScript, (unlinkError) => {
+                if (unlinkError) {
+                    console.error(`Error deleting temporary script: ${unlinkError}`);
+                } else {
+                    console.log("Temporary script file deleted successfully");
+                }
+            });
+            
             if (error) {
                 console.error(`Execution error: ${error.message}`);
                 reject(`Execution error: ${error.message}`);
@@ -229,10 +278,15 @@ async function runPythonSnippet(snippetText: string): Promise<string> {
 
 async function autoComplete(snippetText: string): Promise<string> {
     console.log("Starting autoComplete function");
+    if (!areSettingsConfigured()) {
+        vscode.window.showErrorMessage('Please configure LLM provider and API key in settings');
+        return snippetText;
+    }
     return new Promise(async (resolve, reject) => {
         try {
             let my_llm = new LLM();
-            my_llm.initialize("groq", "API_KEY");
+            const {llmProvider, apiKey} = getSettings();
+            my_llm.initialize(llmProvider, apiKey);
             let completedText = await my_llm.call(snippetText)
             console.log(`Completed Text: ${completedText}`)
             completedText = completedText.replace("```python", "").replace("```", "")

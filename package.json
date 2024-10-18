@@ -11,6 +11,22 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "Instant Snippets",
+      "properties": {
+        "yourExtension.llmProvider": {
+          "type": "string",
+          "enum": ["llama", "anthropic", "openai"],
+          "default": "",
+          "description": "Select the LLM provider"
+        },
+        "yourExtension.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "API key for the selected LLM provider"
+        }
+      }
+    },
     "commands": [
       {
         "command": "instantSnippets.openInEditor",
