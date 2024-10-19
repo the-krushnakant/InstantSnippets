@@ -8,7 +8,7 @@ export class LLM {
         try {
             this.apiKey = apiKey;
             switch (llmChoice) {
-                case 'groq':
+                case 'llama':
                     this.apiUrl = "https://api.groq.com/openai/v1/chat/completions";
                     break;
                 case 'openai':
@@ -63,7 +63,7 @@ export class LLM {
         });
 
         if (!response.ok) {
-            throw new Error(`Groq API request failed with status ${response.status}`);
+            throw new Error(`API request failed with status ${response.status}`);
         }
 
         const data = await response.json() as any;
