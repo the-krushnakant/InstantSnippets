@@ -37,8 +37,12 @@
         "title": "Open in editor and run snippet"
       },
       {
-        "command": "instantSnippets.openImportAndRun",
-        "title": "Open in editor, add 'import os' and run snippet"
+        "command": "instantSnippets.openAndAutocomplete",
+        "title": "Open in editor and autocomplete snippet"
+      },      
+      {
+        "command": "instantSnippets.openAutocompleteAndRun",
+        "title": "Open in editor, autocomplete and run snippet"
       }
     ],
     "menus": {

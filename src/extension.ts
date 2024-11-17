@@ -60,7 +60,11 @@ export function activate(context: vscode.ExtensionContext) {
                 // Option 2: Immediately run the snippet
                 panel.webview.postMessage({ command: 'runSnippet', snippet: snippetText });
             } else if (option === 3) {
-                // Option 3: Autocomplete, then run
+                // Option 3: Only autocomplete
+                autoComplete(snippetText).then((completedSnippet) => {
+                    panel.webview.postMessage({ command: 'autoComplete', output: completedSnippet });
+                });
+            } else if (option == 4) {
                 autoComplete(snippetText).then((completedSnippet) => {
                     panel.webview.postMessage({ command: 'autoComplete', output: completedSnippet });
                     // Wait for the autocomplete to finish before running

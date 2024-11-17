@@ -74,6 +74,7 @@ export async function runPythonSnippet(snippetText: string): Promise<string> {
 
 export async function autoComplete(snippetText: string): Promise<string> {
     console.log("Starting autoComplete function");
+    vscode.window.showInformationMessage("Autocompleting snippet")
     if (!areSettingsConfigured()) {
         vscode.window.showErrorMessage('Please configure LLM provider and API key in settings');
         return snippetText;
