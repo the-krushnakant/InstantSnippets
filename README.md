@@ -3,17 +3,17 @@ Instant Snippets is a lightweight VS Code / Cursor extension designed to streaml
 
 You will need a GROQ_API_KEY for this to work.
 
-## Features
+### Features
 - Autocomplete Python Snippets: Use the power of LLMs that write small driver script for your snippet.
 - Run Snippets Instantly: Execute snippets directly to see results in real time.
 - Simplified Debugging: Test small code fragments without needing to set up an entire script or environment.
 
-Benefits
+### Benefits
 - Speeds up development.
 - Enhances debugging efficiency.
 - Easy to use, especially for trying out features you're unsure about or troubleshooting code.
 
-Usage
+### Usage
 - Open a Python file in VS Code.
 - Select a snippet and right click
 - Use the "Autocomplete and run Snippet" command to execute and view the results in the terminal.
