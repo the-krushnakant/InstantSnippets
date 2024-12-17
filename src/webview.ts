@@ -45,6 +45,7 @@ export function getWebviewContent(snippetText: string): string {
 
         #editor {
             width: 100%;  /* Full width of its container */
+            height: 300px;
             background-color: var(--vscode-editor-background);
             color: var(--vscode-editor-foreground);
             border: none;
@@ -54,11 +55,12 @@ export function getWebviewContent(snippetText: string): string {
             line-height: 1.5;
             outline: none;
             overflow: auto; /* Allow scrolling if content overflows */
-            resize: vertical;
+            resize: vertical !important; 
         }
 
         #output {
             width: 100%;  /* Same as editor */
+            height: 300px;
             padding: 8px;
             background-color: var(--vscode-editor-background); /* Same background as editor */
             color: var(--vscode-editor-foreground);  /* Same text color as editor */
@@ -69,7 +71,7 @@ export function getWebviewContent(snippetText: string): string {
             white-space: pre-wrap; /* Wrap text like the editor */
             overflow: auto; /* Allow scrolling if content overflows */
             outline: none;
-            resize: vertical;
+            resize: vertical !important;
         }
 
     </style>
