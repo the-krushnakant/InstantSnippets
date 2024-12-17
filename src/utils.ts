@@ -87,7 +87,7 @@ export async function autoComplete(snippetText: string): Promise<string> {
             my_llm.initialize(llmProvider, apiKey);
             let completedText = await my_llm.call(snippetText)
             console.log(`Completed Text: ${completedText}`)
-            completedText = completedText.replace("```python", "").replace("```", "")
+            completedText = completedText.replaceAll("```python", "").replaceAll("```", "")
             console.log(`Replaced Text: ${completedText}`)
 
             resolve(completedText);

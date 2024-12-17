@@ -5,6 +5,7 @@ import { runPythonSnippet, autoComplete } from './utils';
 
 export function activate(context: vscode.ExtensionContext) {
     const disposable = vscode.commands.registerCommand('instantSnippets.openSnippet', (option: number) => {
+        console.log(`received option ${option}`)
         const editor = vscode.window.activeTextEditor;
         if (editor) {
             const selection = editor.selection;
@@ -86,7 +87,8 @@ export function activate(context: vscode.ExtensionContext) {
     const menuItems = [
         { id: 'instantSnippets.openInEditor', title: 'Open snippet in editor', option: 1 },
         { id: 'instantSnippets.openAndRun', title: 'Open in editor and run snippet', option: 2 },
-        { id: 'instantSnippets.openImportAndRun', title: 'Open in editor, add \'import os\' and run snippet', option: 3 }
+        { id: 'instantSnippets.openAndAutocomplete', title: 'Open in editor, and autocomplete', option: 3 },
+        { id: 'instantSnippets.openAutocompleteAndRun', title: 'Open in editor, autocomplete and run snippet', option: 3 },
     ];
 
     menuItems.forEach(item => {

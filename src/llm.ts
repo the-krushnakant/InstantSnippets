@@ -39,9 +39,11 @@ export class LLM {
             {
                 role: "system",
                 content: [
-                    "Autocomplete the following code snippet. Only return python code.",
-                    "Do not add any code of your own unless its necessary to run",
+                    "Autocomplete the user's code snippet. ONLY return python code. Help the user test this snippet.",
+                    "The code that you output must be runnable on its own. You MUST include \
+                    the user's snippet in the response",
                     "Format your output nicely in markdown so that your response starts with ```python and ends with ```",
+                    "ONLY CODE in your response, DO NOT give any explanations, instructions or comments"
                 ].join(' \n')
             },
             {
